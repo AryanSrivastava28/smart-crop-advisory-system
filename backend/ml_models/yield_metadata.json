@@ -1,0 +1,50 @@
+{
+  "numerical_features": [
+    "area",
+    "rainfall",
+    "temperature",
+    "humidity",
+    "fertilizer"
+  ],
+  "categorical_features": [
+    "crop",
+    "season"
+  ],
+  "categorical_columns": [
+    "crop_Cotton",
+    "crop_Maize",
+    "crop_Pulses",
+    "crop_Rice",
+    "crop_Soybean",
+    "crop_Sugarcane",
+    "crop_Tea",
+    "crop_Wheat",
+    "season_Kharif",
+    "season_Rabi",
+    "season_Zaid"
+  ],
+  "all_features": [
+    "area",
+    "rainfall",
+    "temperature",
+    "humidity",
+    "fertilizer",
+    "crop_Cotton",
+    "crop_Maize",
+    "crop_Pulses",
+    "crop_Rice",
+    "crop_Soybean",
+    "crop_Sugarcane",
+    "crop_Tea",
+    "crop_Wheat",
+    "season_Kharif",
+    "season_Rabi",
+    "season_Zaid"
+  ],
+  "metrics": {
+    "mae": 1.2029599248413407,
+    "rmse": 2.3062846262345884,
+    "r2": 0.9857042264077761
+  },
+  "feature_count": 16
+}
