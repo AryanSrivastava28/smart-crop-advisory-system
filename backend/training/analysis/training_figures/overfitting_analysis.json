@@ -1,0 +1,11 @@
+{
+  "final_train_loss": 10.009923934936523,
+  "final_val_loss": 2.379370927810669,
+  "final_train_mae": 1.6072118282318115,
+  "final_val_mae": 0.9240955114364624,
+  "generalization_gap": 7.6305530071258545,
+  "test_mae": 1.2934412148747159,
+  "test_rmse": 2.5163686018435802,
+  "test_r2": 0.982981143801961,
+  "assessment": "Large generalization gap detected. The model may be overfitting. Consider stronger regularization or more data."
+}
