@@ -9,6 +9,7 @@ from .yield_schemas import (
     YieldPredictionResponse,
     YieldFactor,
     YearlyComparison,
+    ModelMetrics,
 )
 from .advisory_schemas import (
     FarmerAdvisoryRequest,
@@ -31,6 +32,7 @@ __all__ = [
     "YieldPredictionResponse",
     "YieldFactor",
     "YearlyComparison",
+    "ModelMetrics",
     "FarmerAdvisoryRequest",
     "FarmerAdvisoryResponse",
     "AdvisoryItem",

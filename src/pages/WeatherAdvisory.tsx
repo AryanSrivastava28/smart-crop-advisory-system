@@ -46,7 +46,7 @@ export default function WeatherAdvisory() {
     <div className="animate-fade-in">
       <PageHeader
         title="Weather-Based Advisory"
-        subtitle="Current weather conditions and their impact on farming activities, with tailored agricultural advice based on real-time data."
+        subtitle="Sample weather conditions and their impact on farming activities, with tailored agricultural advice based on rule-based advisory rules."
         icon={CloudSun}
       >
         <div className="mt-6">
@@ -74,6 +74,9 @@ export default function WeatherAdvisory() {
                   <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
                     <CloudSun className="h-10 w-10" />
                   </div>
+                </div>
+                <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs text-white/90">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-300" /> Sample Data (Demo Mode)
                 </div>
               </div>
               <div className="grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-4">

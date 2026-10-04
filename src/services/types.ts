@@ -26,11 +26,18 @@ export interface YieldPredictionRequest {
   season: string
 }
 
+export interface ModelMetrics {
+  r2: number
+  mae: number
+  rmse: number
+}
+
 export interface YieldPredictionResponse {
   crop: string
   predictedYield: number
   unit: string
   confidence: number
+  modelMetrics?: ModelMetrics
   explanation: string
   factors: { factor: string; status: 'optimal' | 'moderate' | 'low'; detail: string }[]
   yearlyComparison: { year: string; yield: number }[]

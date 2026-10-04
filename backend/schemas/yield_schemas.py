@@ -4,9 +4,15 @@ Pydantic models for the Yield Prediction endpoint.
 These match the TypeScript interfaces in src/services/types.ts exactly.
 """
 
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
+
+
+class ModelMetrics(BaseModel):
+    r2: float
+    mae: float
+    rmse: float
 
 
 class YieldPredictionRequest(BaseModel):
@@ -37,6 +43,7 @@ class YieldPredictionResponse(BaseModel):
     predictedYield: float
     unit: str
     confidence: int
+    modelMetrics: Optional[ModelMetrics] = None
     explanation: str
     factors: list[YieldFactor]
     yearlyComparison: list[YearlyComparison]

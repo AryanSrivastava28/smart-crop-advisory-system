@@ -5,7 +5,6 @@ import FormInput, { FormSelect } from '../components/ui/FormInput'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import ErrorMessage from '../components/ui/ErrorMessage'
 import ResultCard from '../components/ui/ResultCard'
-import ConfidenceBar from '../components/ui/ConfidenceBar'
 import { useForm } from '../hooks/useForm'
 import { useAsync } from '../hooks/useAsync'
 import { predictYield } from '../services'
@@ -137,7 +136,22 @@ export default function YieldPrediction() {
                   </div>
                 </div>
                 <div className="mt-6">
-                  <ConfidenceBar value={data.confidence} label="Prediction Confidence" />
+                  <p className="mb-2 text-sm font-medium text-earth-600">Prediction Reliability: Based on model validation performance</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="rounded-lg bg-primary-50 p-3 text-center">
+                      <p className="text-xs text-earth-500">R² Score</p>
+                      <p className="mt-1 text-lg font-bold text-primary-700">{data.modelMetrics ? data.modelMetrics.r2.toFixed(4) : '—'}</p>
+                    </div>
+                    <div className="rounded-lg bg-accent-50 p-3 text-center">
+                      <p className="text-xs text-earth-500">MAE</p>
+                      <p className="mt-1 text-lg font-bold text-accent-700">{data.modelMetrics ? data.modelMetrics.mae.toFixed(4) : '—'}</p>
+                    </div>
+                    <div className="rounded-lg bg-amber-50 p-3 text-center">
+                      <p className="text-xs text-earth-500">RMSE</p>
+                      <p className="mt-1 text-lg font-bold text-amber-700">{data.modelMetrics ? data.modelMetrics.rmse.toFixed(4) : '—'}</p>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-xs text-earth-400">R² indicates how well the model explains variance in yield data (closer to 1 is better). MAE and RMSE are in tonnes/hectare.</p>
                 </div>
               </ResultCard>
 

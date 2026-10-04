@@ -18,7 +18,7 @@ const features = [
   {
     icon: CloudSun,
     title: 'Weather-Based Advisory',
-    description: 'Receive real-time agricultural advice based on current weather conditions and their impact on crops.',
+    description: 'Receive agricultural advice based on sample weather conditions and their impact on crops.',
     to: '/weather-advisory',
   },
   {
@@ -210,7 +210,7 @@ export default function Home() {
               {[
                 { icon: Brain, text: 'ML models for crop recommendation based on NPK and environmental data' },
                 { icon: TrendingUp, text: 'Deep learning yield prediction using historical and current inputs' },
-                { icon: CloudSun, text: 'Real-time weather integration for context-aware advisories' },
+                { icon: CloudSun, text: 'Sample weather data for context-aware advisories' },
                 { icon: Lightbulb, text: 'Intelligent advisory engine for crop care and pest management' },
               ].map((item) => (
                 <li key={item.text} className="flex items-start gap-3">

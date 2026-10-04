@@ -77,7 +77,7 @@ function mockWeather(): WeatherAdvisoryResponse {
       rainfall,
       condition,
       windSpeed,
-      location: 'Sample Region',
+      location: 'Sample Data (Demo Mode)',
     },
     advisories,
     suitableCrops,

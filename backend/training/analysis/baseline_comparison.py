@@ -51,27 +51,35 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 def load_and_preprocess():
-    """Load dataset and apply the same preprocessing as the DL training script."""
+    """Load dataset and apply preprocessing with proper train/test separation.
+
+    Splits into train/test FIRST, then fits scaler/encoder on training data only
+    to prevent data leakage. Uses the same approach as the corrected
+    train_yield_model.py.
+    """
     df = pd.read_csv(YIELD_CSV)
     print(f"Dataset loaded: {df.shape[0]} rows, {df.shape[1]} columns")
 
-    # One-hot encode categorical features
-    encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
-    cat_encoded = encoder.fit_transform(df[CATEGORICAL_FEATURES])
-    cat_columns = encoder.get_feature_names_out(CATEGORICAL_FEATURES).tolist()
-    cat_df = pd.DataFrame(cat_encoded, columns=cat_columns, index=df.index)
-
-    # Normalize numerical features
-    scaler = StandardScaler()
-    num_scaled = scaler.fit_transform(df[NUMERICAL_FEATURES])
-    num_df = pd.DataFrame(num_scaled, columns=NUMERICAL_FEATURES, index=df.index)
-
-    X = pd.concat([num_df, cat_df], axis=1)
     y = df[TARGET].values
+    X_raw = df[NUMERICAL_FEATURES + CATEGORICAL_FEATURES].copy()
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X.values, y, test_size=0.2, random_state=42
+    X_train_raw, X_test_raw, y_train, y_test = train_test_split(
+        X_raw, y, test_size=0.2, random_state=42
     )
+
+    # Fit scaler on training data only
+    scaler = StandardScaler()
+    train_num = scaler.fit_transform(X_train_raw[NUMERICAL_FEATURES])
+    test_num = scaler.transform(X_test_raw[NUMERICAL_FEATURES])
+
+    # Fit encoder on training data only
+    encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
+    train_cat = encoder.fit_transform(X_train_raw[CATEGORICAL_FEATURES])
+    test_cat = encoder.transform(X_test_raw[CATEGORICAL_FEATURES])
+
+    X_train = np.hstack([train_num, train_cat])
+    X_test = np.hstack([test_num, test_cat])
+
     return X_train, X_test, y_train, y_test
 
 

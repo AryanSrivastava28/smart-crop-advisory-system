@@ -62,23 +62,39 @@ def load_data():
 
 
 def preprocess(df):
-    """Encode categorical features and normalize numerical features."""
-    # One-hot encode categorical features
-    encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
-    cat_encoded = encoder.fit_transform(df[CATEGORICAL_FEATURES])
-    cat_columns = encoder.get_feature_names_out(CATEGORICAL_FEATURES).tolist()
-    cat_df = pd.DataFrame(cat_encoded, columns=cat_columns, index=df.index)
+    """Encode categorical features and normalize numerical features.
 
-    # Normalize numerical features
-    scaler = StandardScaler()
-    num_scaled = scaler.fit_transform(df[NUMERICAL_FEATURES])
-    num_df = pd.DataFrame(num_scaled, columns=NUMERICAL_FEATURES, index=df.index)
-
-    # Combine
-    X = pd.concat([num_df, cat_df], axis=1)
+    Splits into train/test FIRST, then fits scaler and encoder only on
+    training data to prevent data leakage.
+    """
     y = df[TARGET].values
 
-    return X, y, scaler, encoder, cat_columns
+    # Split raw data before fitting any preprocessors
+    X_raw = df[NUMERICAL_FEATURES + CATEGORICAL_FEATURES].copy()
+    X_train_raw, X_test_raw, y_train, y_test = train_test_split(
+        X_raw, y, test_size=0.2, random_state=42
+    )
+
+    # Fit scaler on training numerical features only
+    scaler = StandardScaler()
+    train_num_scaled = scaler.fit_transform(X_train_raw[NUMERICAL_FEATURES])
+    test_num_scaled = scaler.transform(X_test_raw[NUMERICAL_FEATURES])
+
+    # Fit encoder on training categorical features only
+    encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
+    train_cat_encoded = encoder.fit_transform(X_train_raw[CATEGORICAL_FEATURES])
+    test_cat_encoded = encoder.transform(X_test_raw[CATEGORICAL_FEATURES])
+    cat_columns = encoder.get_feature_names_out(CATEGORICAL_FEATURES).tolist()
+
+    # Combine numerical + categorical
+    X_train = np.hstack([train_num_scaled, train_cat_encoded])
+    X_test = np.hstack([test_num_scaled, test_cat_encoded])
+
+    # Full feature list for metadata
+    all_features = NUMERICAL_FEATURES + cat_columns
+    feature_count = len(all_features)
+
+    return X_train, X_test, y_train, y_test, scaler, encoder, cat_columns, all_features, feature_count
 
 
 def build_model(input_dim):
@@ -114,16 +130,12 @@ def main():
         tf.config.experimental.set_memory_growth(gpu, True)
 
     df = load_data()
-    X, y, scaler, encoder, cat_columns = preprocess(df)
-    print(f"Features: {list(X.columns)}")
-    print(f"Feature count: {X.shape[1]}")
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        X.values, y, test_size=0.2, random_state=42
-    )
+    X_train, X_test, y_train, y_test, scaler, encoder, cat_columns, all_features, feature_count = preprocess(df)
+    print(f"Features: {all_features}")
+    print(f"Feature count: {feature_count}")
 
     # Build and train the model
-    model = build_model(X.shape[1])
+    model = build_model(feature_count)
     model.summary()
 
     print("\n--- Training neural network ---")
@@ -170,9 +182,9 @@ def main():
         "numerical_features": NUMERICAL_FEATURES,
         "categorical_features": CATEGORICAL_FEATURES,
         "categorical_columns": cat_columns,
-        "all_features": list(X.columns),
+        "all_features": all_features,
         "metrics": {"mae": float(mae), "rmse": float(rmse), "r2": float(r2)},
-        "feature_count": X.shape[1],
+        "feature_count": feature_count,
     }
     with open(os.path.join(MODEL_DIR, "yield_metadata.json"), "w") as f:
         json.dump(metadata, f, indent=2)

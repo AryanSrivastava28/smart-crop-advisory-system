@@ -7,8 +7,10 @@ using the trained Keras neural network.
 """
 
 from fastapi import APIRouter, HTTPException
+import json
+import os
 
-from schemas import YieldPredictionRequest, YieldPredictionResponse, YieldFactor, YearlyComparison
+from schemas import YieldPredictionRequest, YieldPredictionResponse, YieldFactor, YearlyComparison, ModelMetrics
 from services.yield_service import predict_yield
 
 router = APIRouter()
@@ -88,15 +90,23 @@ async def yield_prediction(req: YieldPredictionRequest):
             f"usage during the {req.season} season."
         )
 
-        # Note: confidence is an approximation based on model R2 score
-        # We use a fixed confidence based on training metrics rather than fabricating
-        confidence = 85
+        # Return actual model validation metrics instead of a fabricated confidence
+        metrics_path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "ml_models", "yield_metadata.json"
+        )
+        with open(metrics_path, "r") as f:
+            model_metrics = json.load(f)["metrics"]
 
         return YieldPredictionResponse(
             crop=req.crop,
             predictedYield=predicted,
             unit=unit,
-            confidence=confidence,
+            confidence=int(round(model_metrics["r2"] * 100)),
+            modelMetrics={
+                "r2": round(model_metrics["r2"], 4),
+                "mae": round(model_metrics["mae"], 4),
+                "rmse": round(model_metrics["rmse"], 4),
+            },
             explanation=explanation,
             factors=factors,
             yearlyComparison=yearly,

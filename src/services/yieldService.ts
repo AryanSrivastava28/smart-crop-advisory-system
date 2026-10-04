@@ -23,7 +23,6 @@ function mockYield(req: YieldPredictionRequest): YieldPredictionResponse {
   const fertFactor = req.fertilizer > 50 && req.fertilizer < 150 ? 1.08 : 0.95
 
   const predicted = +(base * areaFactor * rainFactor * tempFactor * fertFactor).toFixed(2)
-  const confidence = 78 + Math.floor(Math.random() * 15)
 
   const status = (v: number, lo: number, hi: number): 'optimal' | 'moderate' | 'low' =>
     v >= lo && v <= hi ? 'optimal' : v < lo ? 'low' : 'moderate'
@@ -32,7 +31,8 @@ function mockYield(req: YieldPredictionRequest): YieldPredictionResponse {
     crop: req.crop,
     predictedYield: predicted,
     unit: 'tonnes/hectare',
-    confidence,
+    confidence: 86,
+    modelMetrics: { r2: 0.986, mae: 1.14, rmse: 2.26 },
     explanation: `Based on the provided inputs, ${req.crop} is expected to yield approximately ${predicted} tonnes per hectare. The prediction considers ${req.area} hectares of land, ${req.rainfall} mm rainfall, ${req.temperature}°C temperature, and ${req.fertilizer} kg/ha fertilizer usage during the ${req.season} season.`,
     factors: [
       {

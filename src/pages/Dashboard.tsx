@@ -70,7 +70,7 @@ export default function Dashboard() {
             </div>
           </SummaryCard>
 
-          <SummaryCard icon={TrendingUp} title="Predicted Yield" value="2.4 t/ha" subtitle="Rice — 88% confidence" to="/yield-prediction" delay={80}>
+          <SummaryCard icon={TrendingUp} title="Predicted Yield" value="2.4 t/ha" subtitle="Rice — R²=0.986 (model validation)" to="/yield-prediction" delay={80}>
             <div className="mt-3 flex items-center gap-2 text-xs text-primary-600">
               <TrendingUp className="h-3.5 w-3.5" /> +8% vs last year
             </div>

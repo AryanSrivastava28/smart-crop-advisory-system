@@ -67,7 +67,9 @@ def predict_yield(crop, area, rainfall, temperature, humidity, fertilizer, seaso
 
     # One-hot encode categorical features
     cat_df = pd.DataFrame([[crop, season]], columns=categorical_features)
-    cat_encoded = _encoder.transform(cat_df).toarray() if hasattr(_encoder.transform(cat_df), 'toarray') else _encoder.transform(cat_df)
+    cat_encoded = _encoder.transform(cat_df)
+    if hasattr(cat_encoded, 'toarray'):
+        cat_encoded = cat_encoded.toarray()
 
     # Combine features
     features = np.hstack([num_scaled, cat_encoded])
