@@ -74,8 +74,11 @@ def predict_yield(crop, area, rainfall, temperature, humidity, fertilizer, seaso
     # Combine features
     features = np.hstack([num_scaled, cat_encoded])
 
+    # Reshape for LSTM: (1 sample, 1 timestep, n features)
+    features_3d = features.reshape((features.shape[0], 1, features.shape[1]))
+
     # Predict
-    prediction = float(_model.predict(features, verbose=0).flatten()[0])
+    prediction = float(_model.predict(features_3d, verbose=0).flatten()[0])
     prediction = max(0.0, prediction)
 
     return {

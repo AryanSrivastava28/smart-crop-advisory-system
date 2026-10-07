@@ -1,11 +1,11 @@
 {
-  "final_train_loss": 7.786222457885742,
-  "final_val_loss": 1.7515071630477905,
-  "final_train_mae": 1.4829803705215454,
-  "final_val_mae": 0.7506772875785828,
-  "generalization_gap": 6.034715294837952,
-  "test_mae": 1.1762602234431998,
-  "test_rmse": 2.1969546498676107,
-  "test_r2": 0.9870274892916987,
+  "final_train_loss": 6.749691486358643,
+  "final_val_loss": 1.6077719926834106,
+  "final_train_mae": 1.1326220035552979,
+  "final_val_mae": 0.6514589190483093,
+  "generalization_gap": 5.141919493675232,
+  "test_mae": 0.9966799632261981,
+  "test_rmse": 2.2454972717867974,
+  "test_r2": 0.986447890034925,
   "assessment": "Large generalization gap detected. The model may be overfitting. Consider stronger regularization or more data."
 }

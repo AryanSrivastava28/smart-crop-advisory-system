@@ -2,10 +2,10 @@
 Lightweight Hyperparameter Tuning for the Yield Prediction DL Model
 ====================================================================
 
-Tests a small grid of meaningful hyperparameter combinations:
+Tests a small grid of meaningful hyperparameter combinations for the LSTM:
   - Learning rate: 0.001, 0.0005
   - Dropout rate: 0.10, 0.20
-  - Hidden layer size: (128,64,32), (64,32,16)
+  - LSTM units: (64, 32), (32, 16)
 
 Uses the same dataset and preprocessing (with proper train/test split)
 as train_yield_model.py. Selects the best configuration by validation loss.
@@ -75,16 +75,22 @@ def load_and_preprocess():
     return X_train, X_test, y_train, y_test, X_train.shape[1]
 
 
-def build_model(input_dim, learning_rate, dropout_rate, hidden_sizes):
-    """Build a model with configurable hyperparameters."""
-    layers = [keras.layers.Input(shape=(input_dim,))]
-    for i, size in enumerate(hidden_sizes):
-        layers.append(keras.layers.Dense(size, activation="relu"))
-        layers.append(keras.layers.BatchNormalization())
-        layers.append(keras.layers.Dropout(dropout_rate))
-    layers.append(keras.layers.Dense(1, activation="linear"))
+def build_model(input_dim, learning_rate, dropout_rate, lstm_units):
+    """Build an LSTM model with configurable hyperparameters.
 
-    model = keras.Sequential(layers)
+    input_dim is the number of features per timestep. Input is reshaped
+    to (batch, 1, input_dim) before calling this model.
+    """
+    model = keras.Sequential([
+        keras.layers.Input(shape=(1, input_dim)),
+        keras.layers.LSTM(lstm_units[0], return_sequences=True),
+        keras.layers.Dropout(dropout_rate),
+        keras.layers.LSTM(lstm_units[1]),
+        keras.layers.Dropout(dropout_rate),
+        keras.layers.Dense(16, activation="relu"),
+        keras.layers.Dense(1, activation="linear"),
+    ])
+
     model.compile(
         optimizer=keras.optimizers.Adam(learning_rate=learning_rate),
         loss="mse",
@@ -93,14 +99,14 @@ def build_model(input_dim, learning_rate, dropout_rate, hidden_sizes):
     return model
 
 
-# Hyperparameter grid
+# Hyperparameter grid for LSTM
 CONFIGS = [
-    {"learning_rate": 0.001,  "dropout": 0.10, "hidden_sizes": (128, 64, 32)},
-    {"learning_rate": 0.001,  "dropout": 0.20, "hidden_sizes": (128, 64, 32)},
-    {"learning_rate": 0.0005, "dropout": 0.10, "hidden_sizes": (128, 64, 32)},
-    {"learning_rate": 0.0005, "dropout": 0.20, "hidden_sizes": (128, 64, 32)},
-    {"learning_rate": 0.001,  "dropout": 0.15, "hidden_sizes": (64, 32, 16)},
-    {"learning_rate": 0.0005, "dropout": 0.15, "hidden_sizes": (64, 32, 16)},
+    {"learning_rate": 0.001,  "dropout": 0.10, "lstm_units": (64, 32)},
+    {"learning_rate": 0.001,  "dropout": 0.20, "lstm_units": (64, 32)},
+    {"learning_rate": 0.0005, "dropout": 0.10, "lstm_units": (64, 32)},
+    {"learning_rate": 0.0005, "dropout": 0.20, "lstm_units": (64, 32)},
+    {"learning_rate": 0.001,  "dropout": 0.15, "lstm_units": (32, 16)},
+    {"learning_rate": 0.0005, "dropout": 0.15, "lstm_units": (32, 16)},
 ]
 
 
@@ -115,19 +121,23 @@ def main():
     print(f"Feature count: {input_dim}")
     print(f"Configurations to test: {len(CONFIGS)}\n")
 
+    # Reshape for LSTM: (samples, timesteps=1, features)
+    X_train_3d = X_train.reshape((X_train.shape[0], 1, X_train.shape[1]))
+    X_test_3d = X_test.reshape((X_test.shape[0], 1, X_test.shape[1]))
+
     results = []
 
     for i, cfg in enumerate(CONFIGS):
-        label = f"Config {i+1}: lr={cfg['learning_rate']}, dropout={cfg['dropout']}, sizes={cfg['hidden_sizes']}"
+        label = f"Config {i+1}: lr={cfg['learning_rate']}, dropout={cfg['dropout']}, lstm_units={cfg['lstm_units']}"
         print(f"--- Testing {label} ---")
 
         tf.random.set_seed(42)
         np.random.seed(42)
 
-        model = build_model(input_dim, cfg["learning_rate"], cfg["dropout"], cfg["hidden_sizes"])
+        model = build_model(input_dim, cfg["learning_rate"], cfg["dropout"], cfg["lstm_units"])
 
         history = model.fit(
-            X_train, y_train,
+            X_train_3d, y_train,
             validation_split=0.15,
             epochs=50,
             batch_size=32,
@@ -144,7 +154,7 @@ def main():
         val_mae = min(history.history["val_mae"])
 
         # Also evaluate on test set
-        y_pred = model.predict(X_test, verbose=0).flatten()
+        y_pred = model.predict(X_test_3d, verbose=0).flatten()
         test_mae = mean_absolute_error(y_test, y_pred)
         test_rmse = np.sqrt(mean_squared_error(y_test, y_pred))
         test_r2 = r2_score(y_test, y_pred)
@@ -153,7 +163,7 @@ def main():
             "config_id": i + 1,
             "learning_rate": cfg["learning_rate"],
             "dropout": cfg["dropout"],
-            "hidden_sizes": list(cfg["hidden_sizes"]),
+            "lstm_units": list(cfg["lstm_units"]),
             "epochs_run": epochs_run,
             "val_loss": float(round(val_loss, 4)),
             "val_mae": float(round(val_mae, 4)),
@@ -170,7 +180,7 @@ def main():
     print("=" * 70)
     print(f"  BEST CONFIG: #{best['config_id']}")
     print(f"  lr={best['learning_rate']}, dropout={best['dropout']}, "
-          f"sizes={best['hidden_sizes']}")
+          f"lstm_units={best['lstm_units']}")
     print(f"  Val Loss: {best['val_loss']}, Val MAE: {best['val_mae']}")
     print(f"  Test R2: {best['test_r2']}, Test MAE: {best['test_mae']}")
     print("=" * 70)

@@ -2,7 +2,7 @@
 Training Curves & Overfitting Analysis for the Deep Learning Yield Model
 ========================================================================
 
-Retrains the Keras neural network (same architecture as train_yield_model.py)
+Retrains the Keras LSTM neural network (same architecture as train_yield_model.py)
 with verbose history logging, then:
 
   1. Plots training vs validation loss curves (MSE)
@@ -83,16 +83,14 @@ def load_and_preprocess():
 
 
 def build_model(input_dim):
-    """Same architecture as train_yield_model.py for consistency."""
+    """Same LSTM architecture as train_yield_model.py for consistency."""
     model = keras.Sequential([
-        keras.layers.Input(shape=(input_dim,)),
-        keras.layers.Dense(128, activation="relu"),
-        keras.layers.BatchNormalization(),
+        keras.layers.Input(shape=(1, input_dim)),
+        keras.layers.LSTM(64, return_sequences=True),
         keras.layers.Dropout(0.15),
-        keras.layers.Dense(64, activation="relu"),
-        keras.layers.BatchNormalization(),
+        keras.layers.LSTM(32),
         keras.layers.Dropout(0.1),
-        keras.layers.Dense(32, activation="relu"),
+        keras.layers.Dense(16, activation="relu"),
         keras.layers.Dense(1, activation="linear"),
     ])
     model.compile(
@@ -216,12 +214,16 @@ def main():
 
     X_train, X_test, y_train, y_test, input_dim = load_and_preprocess()
 
+    # Reshape for LSTM: (samples, timesteps=1, features)
+    X_train_3d = X_train.reshape((X_train.shape[0], 1, X_train.shape[1]))
+    X_test_3d = X_test.reshape((X_test.shape[0], 1, X_test.shape[1]))
+
     model = build_model(input_dim)
     model.summary()
 
-    print("\n--- Training neural network (max 80 epochs) ---")
+    print("\n--- Training LSTM neural network (max 80 epochs) ---")
     history = model.fit(
-        X_train, y_train,
+        X_train_3d, y_train,
         validation_split=0.15,
         epochs=80,
         batch_size=32,
@@ -243,7 +245,7 @@ def main():
     plot_mae_curves(history)
 
     # Overfitting analysis
-    overfitting_analysis(history, model, X_train, y_train, X_test, y_test)
+    overfitting_analysis(history, model, X_train_3d, y_train, X_test_3d, y_test)
 
     print("\nTraining curves analysis complete!")
 

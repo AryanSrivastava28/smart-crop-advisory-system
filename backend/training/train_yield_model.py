@@ -2,13 +2,19 @@
 Crop Yield Prediction Model Training (Deep Learning)
 =====================================================
 
-Trains a neural network using TensorFlow/Keras to predict crop yield
-based on crop, area, rainfall, temperature, humidity, fertilizer, and season.
+Trains an LSTM (Long Short-Term Memory) recurrent neural network using
+TensorFlow/Keras to predict crop yield based on crop, area, rainfall,
+temperature, humidity, fertilizer, and season.
 
-The model is a feedforward neural network with:
-  - Input: 7 features (1 categorical encoded, 6 numerical normalized)
-  - Hidden layers: 128 -> 64 -> 32 with ReLU activation
+The model is an LSTM network with:
+  - Input: 16 features reshaped as a sequence of 1 timestep (timesteps=1, features=16)
+  - LSTM layer (64 units) -> LSTM layer (32 units) -> Dense(16) -> Dense(1)
   - Output: 1 (regression - predicted yield)
+
+The tabular yield data has no natural temporal sequence, so each sample is
+treated as a single-timestep sequence. This satisfies the academic requirement
+of using an LSTM (a type of RNN) while keeping the existing dataset and
+features unchanged.
 
 Preprocessing:
   - Categorical features (crop, season) are one-hot encoded
@@ -98,16 +104,19 @@ def preprocess(df):
 
 
 def build_model(input_dim):
-    """Build a feedforward neural network for regression."""
+    """Build an LSTM-based recurrent neural network for regression.
+
+    The tabular features are reshaped to (batch, timesteps=1, features) so
+    they can be fed into LSTM layers. Each sample is treated as a
+    single-timestep sequence.
+    """
     model = keras.Sequential([
-        keras.layers.Input(shape=(input_dim,)),
-        keras.layers.Dense(128, activation="relu"),
-        keras.layers.BatchNormalization(),
+        keras.layers.Input(shape=(1, input_dim)),
+        keras.layers.LSTM(64, return_sequences=True),
         keras.layers.Dropout(0.15),
-        keras.layers.Dense(64, activation="relu"),
-        keras.layers.BatchNormalization(),
+        keras.layers.LSTM(32),
         keras.layers.Dropout(0.1),
-        keras.layers.Dense(32, activation="relu"),
+        keras.layers.Dense(16, activation="relu"),
         keras.layers.Dense(1, activation="linear"),
     ])
 
@@ -134,13 +143,18 @@ def main():
     print(f"Features: {all_features}")
     print(f"Feature count: {feature_count}")
 
+    # Reshape for LSTM: (samples, timesteps=1, features)
+    X_train_3d = X_train.reshape((X_train.shape[0], 1, X_train.shape[1]))
+    X_test_3d = X_test.reshape((X_test.shape[0], 1, X_test.shape[1]))
+    print(f"Input shape for LSTM: {X_train_3d.shape}")
+
     # Build and train the model
     model = build_model(feature_count)
     model.summary()
 
-    print("\n--- Training neural network ---")
+    print("\n--- Training LSTM neural network ---")
     history = model.fit(
-        X_train, y_train,
+        X_train_3d, y_train,
         validation_split=0.15,
         epochs=80,
         batch_size=32,
@@ -157,7 +171,7 @@ def main():
 
     # Evaluate
     print("\n--- Evaluation ---")
-    y_pred = model.predict(X_test, verbose=0).flatten()
+    y_pred = model.predict(X_test_3d, verbose=0).flatten()
 
     mae = mean_absolute_error(y_test, y_pred)
     rmse = np.sqrt(mean_squared_error(y_test, y_pred))

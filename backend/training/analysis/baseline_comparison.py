@@ -135,7 +135,9 @@ def evaluate_dl(X_train, X_test, y_train, y_test):
             "Run train_yield_model.py first."
         )
     model = keras.models.load_model(model_path)
-    dl_pred = model.predict(X_test, verbose=0).flatten()
+    # Reshape for LSTM: (samples, timesteps=1, features)
+    X_test_3d = X_test.reshape((X_test.shape[0], 1, X_test.shape[1]))
+    dl_pred = model.predict(X_test_3d, verbose=0).flatten()
     return {
         "mae": mean_absolute_error(y_test, dl_pred),
         "rmse": np.sqrt(mean_squared_error(y_test, dl_pred)),

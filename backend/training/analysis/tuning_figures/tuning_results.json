@@ -4,114 +4,107 @@
       "config_id": 1,
       "learning_rate": 0.001,
       "dropout": 0.1,
-      "hidden_sizes": [
-        128,
+      "lstm_units": [
         64,
         32
       ],
-      "epochs_run": 43,
-      "val_loss": 2.2363,
-      "val_mae": 0.8196,
-      "test_mae": 1.0791,
-      "test_rmse": 2.1564,
-      "test_r2": 0.9875
+      "epochs_run": 50,
+      "val_loss": 4.7016,
+      "val_mae": 0.9134,
+      "test_mae": 1.231,
+      "test_rmse": 2.9426,
+      "test_r2": 0.9767
     },
     {
       "config_id": 2,
       "learning_rate": 0.001,
       "dropout": 0.2,
-      "hidden_sizes": [
-        128,
+      "lstm_units": [
         64,
         32
       ],
-      "epochs_run": 47,
-      "val_loss": 1.4717,
-      "val_mae": 0.6596,
-      "test_mae": 1.118,
-      "test_rmse": 2.5694,
-      "test_r2": 0.9823
+      "epochs_run": 50,
+      "val_loss": 7.4662,
+      "val_mae": 1.0378,
+      "test_mae": 1.2988,
+      "test_rmse": 3.2865,
+      "test_r2": 0.971
     },
     {
       "config_id": 3,
       "learning_rate": 0.0005,
       "dropout": 0.1,
-      "hidden_sizes": [
-        128,
+      "lstm_units": [
         64,
         32
       ],
       "epochs_run": 50,
-      "val_loss": 2.4123,
-      "val_mae": 0.8244,
-      "test_mae": 1.1328,
-      "test_rmse": 2.4368,
-      "test_r2": 0.984
+      "val_loss": 9.5057,
+      "val_mae": 1.1109,
+      "test_mae": 1.4169,
+      "test_rmse": 3.6604,
+      "test_r2": 0.964
     },
     {
       "config_id": 4,
       "learning_rate": 0.0005,
       "dropout": 0.2,
-      "hidden_sizes": [
-        128,
+      "lstm_units": [
         64,
         32
       ],
       "epochs_run": 50,
-      "val_loss": 2.8327,
-      "val_mae": 0.8818,
-      "test_mae": 1.1641,
-      "test_rmse": 2.5195,
-      "test_r2": 0.9829
+      "val_loss": 11.1494,
+      "val_mae": 1.1884,
+      "test_mae": 1.418,
+      "test_rmse": 3.7945,
+      "test_r2": 0.9613
     },
     {
       "config_id": 5,
       "learning_rate": 0.001,
       "dropout": 0.15,
-      "hidden_sizes": [
-        64,
+      "lstm_units": [
         32,
         16
       ],
-      "epochs_run": 42,
-      "val_loss": 3.8811,
-      "val_mae": 0.9876,
-      "test_mae": 1.2518,
-      "test_rmse": 2.7172,
-      "test_r2": 0.9802
+      "epochs_run": 50,
+      "val_loss": 9.5454,
+      "val_mae": 1.1236,
+      "test_mae": 1.3669,
+      "test_rmse": 3.5893,
+      "test_r2": 0.9654
     },
     {
       "config_id": 6,
       "learning_rate": 0.0005,
       "dropout": 0.15,
-      "hidden_sizes": [
-        64,
+      "lstm_units": [
         32,
         16
       ],
       "epochs_run": 50,
-      "val_loss": 7.451,
-      "val_mae": 1.3243,
-      "test_mae": 1.6664,
-      "test_rmse": 3.5223,
-      "test_r2": 0.9667
+      "val_loss": 11.0024,
+      "val_mae": 1.2723,
+      "test_mae": 1.4614,
+      "test_rmse": 3.7469,
+      "test_r2": 0.9623
     }
   ],
   "best_config": {
-    "config_id": 2,
+    "config_id": 1,
     "learning_rate": 0.001,
-    "dropout": 0.2,
-    "hidden_sizes": [
-      128,
+    "dropout": 0.1,
+    "lstm_units": [
       64,
       32
     ],
-    "epochs_run": 47,
-    "val_loss": 1.4717,
-    "val_mae": 0.6596,
-    "test_mae": 1.118,
-    "test_rmse": 2.5694,
-    "test_r2": 0.9823
+    "epochs_run": 50,
+    "val_loss": 4.7016,
+    "val_mae": 0.9134,
+    "test_mae": 1.231,
+    "test_rmse": 2.9426,
+    "test_r2": 0.9767
   },
   "selection_metric": "val_loss (lower is better)"
 }
